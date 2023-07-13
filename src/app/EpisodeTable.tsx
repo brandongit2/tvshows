@@ -1,7 +1,7 @@
 "use client"
 
 import {useRef} from "react"
-import {useScroll, useWindowScroll} from "react-use"
+import {useScroll, useWindowScroll, useWindowSize} from "react-use"
 
 import type {ReactElement} from "react"
 
@@ -19,10 +19,11 @@ export default function EpisodeTable({table}: EpisodeTableProps): ReactElement |
 	const {x} = useScroll(scrollRef)
 	const {y} = useWindowScroll()
 
+	const {width: windowWidth, height: windowHeight} = useWindowSize()
 	const xMin = Math.max(0, Math.floor(x / cellSize))
-	const xMax = Math.min(width, Math.ceil((x + globalThis.innerWidth) / cellSize))
+	const xMax = Math.min(width, Math.ceil((x + windowWidth) / cellSize))
 	const yMin = Math.max(0, Math.floor(y / cellSize))
-	const yMax = Math.min(height, Math.ceil((y + globalThis.innerHeight) / cellSize))
+	const yMax = Math.min(height, Math.ceil((y + windowHeight) / cellSize))
 
 	return (
 		<div className="overflow-auto" ref={scrollRef}>

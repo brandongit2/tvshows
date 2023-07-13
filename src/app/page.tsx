@@ -23,13 +23,25 @@ export default async function Home(): Promise<ReactElement | null> {
 	const listElements = $(`.titleColumn > a, a.ipc-title-link-wrapper`)
 
 	const shows: TmdbTvSeriesDetails[] = []
+	let fullmetalAlchemist1 = false
 	for await (const element of listElements) {
 		const imdbId = $(element).attr(`href`)?.split(`/`)[2].trim()
 		if (!imdbId) continue
 		let showTitle = $(element)
 			.text()
 			.replace(/[0-9]+\. /, ``)
-		if (showTitle in altShowTitles) showTitle = altShowTitles[showTitle]
+		if (showTitle in altShowTitles) {
+			const altTitle = altShowTitles[showTitle]
+			if (altTitle === null) continue
+			showTitle = altTitle
+		}
+
+		// Special case for Fullmetal Alchemist and Fullmetal Alchemist: Brotherhood since they have the same title on IMDb
+		if (showTitle === `Hagane no renkinjutsushi`) {
+			if (fullmetalAlchemist1) showTitle = `Fullmetal Alchemist`
+			else showTitle = `Fullmetal Alchemist: Brotherhood`
+			fullmetalAlchemist1 = true
+		}
 
 		const show = await prisma.shows.findUnique({where: {imdb_id: imdbId}, select: {details: true}})
 		if (show) {
@@ -89,10 +101,11 @@ export default async function Home(): Promise<ReactElement | null> {
 					const isPrereqFinished =
 						showProgresses[prereqPos].seasons.slice(0, -1).every((season) => season === -Infinity) &&
 						showProgresses[prereqPos].seasons.at(-1)! <= 0
-					if (isPrereqStarted) continue
 					if (!isPrereqFinished) {
-						showProgresses[prereqPos].started = true
-						showsInProgress.push(prereqPos)
+						if (!isPrereqStarted) {
+							showProgresses[prereqPos].started = true
+							showsInProgress.push(prereqPos)
+						}
 						continue
 					}
 				}
@@ -133,15 +146,18 @@ export default async function Home(): Promise<ReactElement | null> {
 	}
 
 	return (
-		<div className="grid grid-cols-[10rem,1fr]">
-			<div className="bg-white text-right">
-				{episodeTable.map((episodes, i) => (
-					<p key={shows[i].id} className="overflow-hidden text-ellipsis whitespace-nowrap px-2 text-xs">
-						{shows[i].name}
-					</p>
-				))}
+		<>
+			<div className="grid grid-cols-[10rem,1fr]">
+				<div className="bg-white text-right">
+					{episodeTable.map((episodes, i) => (
+						<p key={shows[i].id} className="overflow-hidden text-ellipsis whitespace-nowrap px-2 text-xs">
+							{shows[i].name}
+						</p>
+					))}
+				</div>
+				<EpisodeTable table={episodeTable} />
 			</div>
-			<EpisodeTable table={episodeTable} />
-		</div>
+			{/* <pre className="text-white">{imdbData}</pre> */}
+		</>
 	)
 }
