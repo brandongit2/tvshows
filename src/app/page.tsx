@@ -63,7 +63,6 @@ export default async function Home(): Promise<ReactElement | null> {
 		.fill([])
 		.map(() => [] as string[])
 	for (let cycle = 0; true; cycle++) {
-		if (cycle > 4000) break
 		let showsInProgress = []
 		// Find seasons currently active
 		for (let s = 0; s < shows.length && showsInProgress.length < 7; s++) {
@@ -86,9 +85,11 @@ export default async function Home(): Promise<ReactElement | null> {
 				if (shows[s].id in showPrereqs) {
 					const prereq = showPrereqs[shows[s].id]
 					const prereqPos = shows.findIndex((show) => show.id === prereq)
+					const isPrereqStarted = showProgresses[prereqPos].started
 					const isPrereqFinished =
 						showProgresses[prereqPos].seasons.slice(0, -1).every((season) => season === -Infinity) &&
 						showProgresses[prereqPos].seasons.at(-1)! <= 0
+					if (isPrereqStarted) continue
 					if (!isPrereqFinished) {
 						showProgresses[prereqPos].started = true
 						showsInProgress.push(prereqPos)
@@ -132,7 +133,7 @@ export default async function Home(): Promise<ReactElement | null> {
 	}
 
 	return (
-		<div className="grid grid-cols-[16rem,1fr]">
+		<div className="grid grid-cols-[10rem,1fr]">
 			<div className="bg-white text-right">
 				{episodeTable.map((episodes, i) => (
 					<p key={shows[i].id} className="overflow-hidden text-ellipsis whitespace-nowrap px-2 text-xs">
