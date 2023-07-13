@@ -71,9 +71,9 @@ export default async function Home(): Promise<ReactElement | null> {
 		seasons: show.seasons.filter((season) => season.season_number !== 0).map((season) => season.episode_count),
 		started: false,
 	}))
-	const episodeTable = Array<string[]>(shows.length)
+	const episodeTable = Array(shows.length)
 		.fill([])
-		.map(() => [] as string[])
+		.map(() => [] as Array<string | null>)
 	for (let cycle = 0; true; cycle++) {
 		let showsInProgress = []
 		// Find seasons currently active
@@ -121,12 +121,12 @@ export default async function Home(): Promise<ReactElement | null> {
 					showProgresses[s].seasons.slice(0, -1).every((season) => season === -Infinity) &&
 					showProgresses[s].seasons.at(-1)! <= 0
 				) {
-					episodeTable[s][cycle] = `black`
+					episodeTable[s][cycle] = null
 				} else if (showProgresses[s].started) {
-					episodeTable[s][cycle] = `gray`
+					episodeTable[s][cycle] = `#71717a`
 					showProgresses[s].seasons[showProgresses[s].seasons.findIndex((season) => season > -10000)]--
 				} else {
-					episodeTable[s][cycle] = `black`
+					episodeTable[s][cycle] = null
 				}
 				continue
 			}
@@ -134,30 +134,16 @@ export default async function Home(): Promise<ReactElement | null> {
 			const showProgress = showProgresses[s]
 			const currentSeason = showProgress.seasons.findIndex((season) => season > -10000)
 			if (currentSeason === -1) {
-				episodeTable[s][cycle] = `black`
+				episodeTable[s][cycle] = null
 				continue
 			}
 			const episodesLeft = showProgress.seasons[currentSeason]
 			showProgresses[s].seasons[currentSeason]--
 
-			if (episodesLeft > 0) episodeTable[s][cycle] = `limegreen`
-			else if (episodesLeft > -10000) episodeTable[s][cycle] = `gray`
+			if (episodesLeft > 0) episodeTable[s][cycle] = `#10b981`
+			else if (episodesLeft > -10000) episodeTable[s][cycle] = `#71717a`
 		}
 	}
 
-	return (
-		<>
-			<div className="grid grid-cols-[10rem,1fr]">
-				<div className="bg-white text-right">
-					{episodeTable.map((episodes, i) => (
-						<p key={shows[i].id} className="overflow-hidden text-ellipsis whitespace-nowrap px-2 text-xs">
-							{shows[i].name}
-						</p>
-					))}
-				</div>
-				<EpisodeTable table={episodeTable} />
-			</div>
-			{/* <pre className="text-white">{imdbData}</pre> */}
-		</>
-	)
+	return <EpisodeTable table={episodeTable} shows={shows} />
 }

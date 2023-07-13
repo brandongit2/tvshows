@@ -17,6 +17,7 @@
 		"@typescript-eslint/eslint-plugin": "6.0.0",
 		"autoprefixer": "10.4.14",
 		"cheerio": "1.0.0-rc.12",
+		"clsx": "1.2.1",
 		"eslint": "8.44.0",
 		"eslint-config-next": "13.4.9",
 		"eslint-plugin-import": "2.27.5",
