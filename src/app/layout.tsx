@@ -9,7 +9,7 @@ const inter = Inter({subsets: ["latin"]})
 
 export default function RootLayout({children}: {children: React.ReactNode}): ReactElement | null {
 	return (
-		<html lang="en" className="leading-none">
+		<html lang="en" className="bg-black leading-none">
 			<body className={inter.className}>{children}</body>
 		</html>
 	)

@@ -4,6 +4,7 @@ import {load} from "cheerio"
 import type {TmdbSearchTv, TmdbTvSeriesDetails} from "@/types/tmdb"
 import type {ReactElement} from "react"
 
+import EpisodeTable from "./EpisodeTable"
 import {altShowTitles, showPrereqs} from "@/info"
 import {tmdbApi} from "@/utils/api"
 
@@ -139,20 +140,7 @@ export default async function Home(): Promise<ReactElement | null> {
 					</p>
 				))}
 			</div>
-			<div
-				className="grid auto-rows-[1rem] overflow-x-auto"
-				style={{gridTemplateColumns: `repeat(${episodeTable[0].length}, 1rem)`}}
-			>
-				{episodeTable.map((episodes, i) =>
-					episodes.map((episode, j) => (
-						<div
-							key={`${shows[i].id}-${j}`}
-							style={{backgroundColor: episode}}
-							className="inline-block h-4 w-4 border border-black"
-						/>
-					)),
-				)}
-			</div>
+			<EpisodeTable table={episodeTable} />
 		</div>
 	)
 }
