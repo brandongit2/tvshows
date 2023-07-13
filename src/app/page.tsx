@@ -1,113 +1,136 @@
-import Image from 'next/image'
+import {PrismaClient} from "@prisma/client"
+import {load} from "cheerio"
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+import type {TmdbSearchTv, TmdbTvSeriesDetails} from "@/types/tmdb"
+import type {ReactElement} from "react"
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+import {tmdbApi} from "@/utils/api"
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+const prisma = new PrismaClient()
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+const getImdbData = async () => {
+	const res = await fetch(`https://www.imdb.com/chart/toptv/`)
+	const data = await res.text()
+	return data
+}
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
+export default async function Home(): Promise<ReactElement | null> {
+	const imdbData = await getImdbData()
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+	const $ = load(imdbData)
+	const listElements = $(`.titleColumn > a, a.ipc-title-link-wrapper`)
+
+	const shows: TmdbTvSeriesDetails[] = []
+	for await (const element of listElements) {
+		const imdbId = $(element).attr(`href`)?.split(`/`)[2].trim()
+		if (!imdbId) continue
+		const showTitle = $(element)
+			.text()
+			.replace(/[0-9]+\. /, ``)
+
+		const show = await prisma.shows.findUnique({where: {imdb_id: imdbId}, select: {details: true}})
+		if (show) {
+			shows.push(JSON.parse(show.details) as TmdbTvSeriesDetails)
+		} else {
+			const tmdbResult = await tmdbApi<TmdbSearchTv>(`search/tv?query=${showTitle}`)
+			for (const result of tmdbResult.results) {
+				try {
+					const details = await tmdbApi<TmdbTvSeriesDetails>(`tv/${result.id}`)
+					await prisma.shows.create({data: {tmdb_id: result.id, imdb_id: imdbId, details: JSON.stringify(details)}})
+					shows.push(details)
+					break
+				} catch {}
+			}
+		}
+	}
+
+	const showProgresses = shows.map((show) => ({
+		seasons: show.seasons.filter((season) => season.season_number !== 0).map((season) => season.episode_count),
+		started: false,
+	}))
+	const episodeTable = Array<string[]>(shows.length)
+		.fill([])
+		.map(() => [] as string[])
+	for (let cycle = 0; true; cycle++) {
+		if (cycle > 4000) break
+		let showsInProgress = []
+		// Find seasons currently active
+		for (let s = 0; s < shows.length && showsInProgress.length < 7; s++) {
+			const currentSeason = showProgresses[s].seasons.findIndex((season) => season > -10000)
+			const episodesLeft = showProgresses[s].seasons[currentSeason]
+			if (showProgresses[s].started && currentSeason !== -1 && episodesLeft > 0) showsInProgress.push(s)
+		}
+		// Find started shows to resume at next season
+		for (let s = 0; s < shows.length && showsInProgress.length < 7; s++) {
+			const lastSeason = showProgresses[s].seasons.findIndex((season) => season > -10000)
+			const nextSeason = lastSeason + 1
+			if (showProgresses[s].started && showProgresses[s].seasons[lastSeason] < -2) {
+				showProgresses[s].seasons[lastSeason] = -Infinity
+				if (nextSeason <= shows[s].seasons.at(-1)!.season_number) showsInProgress.push(s)
+			}
+		}
+		// Find new shows to start
+		for (let s = 0; s < shows.length && showsInProgress.length < 7; s++) {
+			if (!showProgresses[s].started) {
+				showProgresses[s].started = true
+				showsInProgress.push(s)
+			}
+		}
+		if (showsInProgress.length === 0) break
+
+		for (let s = 0; s < shows.length; s++) {
+			if (!showsInProgress.includes(s)) {
+				if (
+					showProgresses[s].seasons.slice(0, -1).every((season) => season === -Infinity) &&
+					showProgresses[s].seasons.at(-1)! <= 0
+				) {
+					episodeTable[s][cycle] = `black`
+				} else if (showProgresses[s].started) {
+					episodeTable[s][cycle] = `gray`
+					showProgresses[s].seasons[showProgresses[s].seasons.findIndex((season) => season > -10000)]--
+				} else {
+					episodeTable[s][cycle] = `black`
+				}
+				continue
+			}
+
+			const showProgress = showProgresses[s]
+			const currentSeason = showProgress.seasons.findIndex((season) => season > -10000)
+			if (currentSeason === -1) {
+				episodeTable[s][cycle] = `black`
+				continue
+			}
+			const episodesLeft = showProgress.seasons[currentSeason]
+			showProgresses[s].seasons[currentSeason]--
+
+			if (episodesLeft > 0) episodeTable[s][cycle] = `limegreen`
+			else if (episodesLeft > -10000) episodeTable[s][cycle] = `gray`
+		}
+	}
+
+	return (
+		<div className="grid grid-cols-[16rem,1fr]">
+			<div className="bg-white text-right">
+				{episodeTable.map((episodes, i) => (
+					<p key={shows[i].id} className="overflow-hidden text-ellipsis whitespace-nowrap px-2 text-xs">
+						{shows[i].name}
+					</p>
+				))}
+			</div>
+			<div
+				className="grid auto-rows-[1rem] overflow-x-auto"
+				style={{gridTemplateColumns: `repeat(${episodeTable[0].length}, 1rem)`}}
+			>
+				{episodeTable.map((episodes, i) =>
+					episodes.map((episode, j) => (
+						<div
+							key={`${shows[i].id}-${j}`}
+							style={{backgroundColor: episode}}
+							className="inline-block h-4 w-4 border border-black"
+						/>
+					)),
+				)}
+			</div>
+		</div>
+	)
 }
