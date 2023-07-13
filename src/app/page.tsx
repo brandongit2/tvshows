@@ -4,6 +4,7 @@ import {load} from "cheerio"
 import type {TmdbSearchTv, TmdbTvSeriesDetails} from "@/types/tmdb"
 import type {ReactElement} from "react"
 
+import {altShowTitles, showPrereqs} from "@/info"
 import {tmdbApi} from "@/utils/api"
 
 const prisma = new PrismaClient()
@@ -24,9 +25,10 @@ export default async function Home(): Promise<ReactElement | null> {
 	for await (const element of listElements) {
 		const imdbId = $(element).attr(`href`)?.split(`/`)[2].trim()
 		if (!imdbId) continue
-		const showTitle = $(element)
+		let showTitle = $(element)
 			.text()
 			.replace(/[0-9]+\. /, ``)
+		if (showTitle in altShowTitles) showTitle = altShowTitles[showTitle]
 
 		const show = await prisma.shows.findUnique({where: {imdb_id: imdbId}, select: {details: true}})
 		if (show) {
@@ -41,6 +43,14 @@ export default async function Home(): Promise<ReactElement | null> {
 					break
 				} catch {}
 			}
+		}
+	}
+
+	// Fetch preqrequisite shows, if they aren't already in the list
+	for (const show of Object.values(showPrereqs)) {
+		if (!shows.find((s) => s.id === show)) {
+			const details = await tmdbApi<TmdbTvSeriesDetails>(`tv/${show}`)
+			shows.push(details)
 		}
 	}
 
@@ -72,6 +82,18 @@ export default async function Home(): Promise<ReactElement | null> {
 		// Find new shows to start
 		for (let s = 0; s < shows.length && showsInProgress.length < 7; s++) {
 			if (!showProgresses[s].started) {
+				if (shows[s].id in showPrereqs) {
+					const prereq = showPrereqs[shows[s].id]
+					const prereqPos = shows.findIndex((show) => show.id === prereq)
+					const isPrereqFinished =
+						showProgresses[prereqPos].seasons.slice(0, -1).every((season) => season === -Infinity) &&
+						showProgresses[prereqPos].seasons.at(-1)! <= 0
+					if (!isPrereqFinished) {
+						showProgresses[prereqPos].started = true
+						showsInProgress.push(prereqPos)
+						continue
+					}
+				}
 				showProgresses[s].started = true
 				showsInProgress.push(s)
 			}
