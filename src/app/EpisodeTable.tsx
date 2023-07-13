@@ -20,9 +20,9 @@ export default function EpisodeTable({table}: EpisodeTableProps): ReactElement |
 	const {y} = useWindowScroll()
 
 	const xMin = Math.max(0, Math.floor(x / cellSize))
-	const xMax = Math.min(width, Math.ceil((x + window.innerWidth) / cellSize))
+	const xMax = Math.min(width, Math.ceil((x + globalThis.innerWidth) / cellSize))
 	const yMin = Math.max(0, Math.floor(y / cellSize))
-	const yMax = Math.min(height, Math.ceil((y + window.innerHeight) / cellSize))
+	const yMax = Math.min(height, Math.ceil((y + globalThis.innerHeight) / cellSize))
 
 	return (
 		<div className="overflow-auto" ref={scrollRef}>
