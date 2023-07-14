@@ -63,7 +63,7 @@ export default function EpisodeTable({table, shows}: EpisodeTableProps): ReactEl
 							cell === null ? null : (
 								<div
 									key={`${i}-${j}`}
-									className="absolute border border-zinc-950"
+									className="absolute rounded-sm border border-zinc-950"
 									style={{
 										top: (yMin + i) * cellSize,
 										left: (xMin + j) * cellSize,

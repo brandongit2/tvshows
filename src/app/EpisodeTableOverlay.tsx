@@ -10,12 +10,12 @@ export default function EpisodeTableOverlay({tableScroll}: EpisodeTableOverlayPr
 	const {elX, elY} = useMouseHovered(ref)
 
 	const x = Math.max(Math.floor(elX / 16), 0)
-	const y = Math.max(Math.floor(elY / 16) + 1, 0)
+	const y = Math.max(Math.floor(elY / 16), 1)
 
 	return (
 		<div className="absolute left-40 top-0 z-30 h-full w-full" ref={ref}>
 			<div
-				className="absolute h-4 w-4 outline outline-2 outline-red-500 transition-transform duration-[50ms]"
+				className="absolute h-4 w-4 rounded-[1px] outline outline-2 outline-red-500 transition-transform duration-[50ms]"
 				style={{transform: `translate(${x * 16}px, ${y * 16}px)`}}
 			/>
 			<span
